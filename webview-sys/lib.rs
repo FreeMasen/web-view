@@ -10,15 +10,19 @@ extern crate bitflags;
 
 use std::os::raw::*;
 
-pub enum CWebView {} // opaque type, only used in ffi pointers
+// opaque type, only used in ffi pointers
+#[repr(C)]
+pub struct CWebView {
+    _private: [u8; 0],
+} 
 
 type ErasedExternalInvokeFn = extern "C" fn(webview: *mut CWebView, arg: *const c_char);
 type ErasedDispatchFn = extern "C" fn(webview: *mut CWebView, arg: *mut c_void);
 
 #[repr(C)]
 pub enum DialogType {
-	Open  = 0,
-	Save  = 1,
+    Open = 0,
+    Save = 1,
 	Alert = 2,
 }
 
@@ -33,7 +37,7 @@ bitflags! {
 	}
 }
 
-extern {
+extern "C" {
 	pub fn webview_free(this: *mut CWebView);
 	pub fn webview_new(title: *const c_char, url: *const c_char, width: c_int, height: c_int, resizable: c_int, debug: c_int, external_invoke_cb: Option<ErasedExternalInvokeFn>, userdata: *mut c_void) -> *mut CWebView;
 	pub fn webview_loop(this: *mut CWebView, blocking: c_int) -> c_int;
